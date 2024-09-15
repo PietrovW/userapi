@@ -29,13 +29,33 @@ func NextID() int {
 	return id
 }
 
-// Pobieranie wszystkich użytkowników
+// GetUsers godoc
+// @Summary      Pobierz listę użytkowników
+// @Description  Zwraca listę wszystkich użytkowników z opcjonalną paginacją
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        page   query      int     false  "Numer strony"
+// @Param        limit  query      int     false  "Liczba elementów na stronie"
+// @Success      200    {object}   map[string]interface{}
+// @Failure      400    {string}   string  "Nieprawidłowe parametry"
+// @Router       /users [get]
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(users)
 }
 
-// Pobieranie użytkownika po ID
+// GetUser godoc
+// @Summary      Pobierz użytkownika
+// @Description  Zwraca użytkownika o podanym ID
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int     true  "ID użytkownika"
+// @Success      200  {object}  models.User
+// @Failure      400  {string}  string  "Nieprawidłowe ID"
+// @Failure      404  {string}  string  "Użytkownik nie znaleziony"
+// @Router       /users/{id} [get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
@@ -54,7 +74,16 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Użytkownik nie znaleziony", http.StatusNotFound)
 }
 
-// Dodawanie nowego użytkownika
+// CreateUser godoc
+// @Summary      Dodaj nowego użytkownika
+// @Description  Tworzy nowego użytkownika na podstawie danych wejściowych
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        user  body      models.User  true  "Nowy użytkownik"
+// @Success      200   {object}  models.User
+// @Failure      400   {string}  string  "Nieprawidłowe dane"
+// @Router       /users [post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var user models.User
