@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/PietrovW/useapi/models"
-
+	"github.com/go-playground/validator"
 	"github.com/gorilla/mux"
 )
 
@@ -60,9 +60,21 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, "Nieprawidłowe dane", http.StatusBadRequest)
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
+
+	validate := validator.New()
+
+	// Validate the User struct
+	err = validate.Struct(user)
+	if err != nil {
+		// Validation failed, handle the error
+		errors := err.(validator.ValidationErrors)
+		http.Error(w, fmt.Sprintf("Validation error: %s", errors), http.StatusBadRequest)
+		return
+	}
+
 	user.ID = NextID()
 	users = append(users, user)
 	json.NewEncoder(w).Encode(user)
@@ -84,7 +96,16 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Nieprawidłowe dane", http.StatusBadRequest)
 		return
 	}
+	validate := validator.New()
 
+	// Validate the User struct
+	err = validate.Struct(updatedUser)
+	if err != nil {
+		// Validation failed, handle the error
+		errors := err.(validator.ValidationErrors)
+		http.Error(w, fmt.Sprintf("Validation error: %s", errors), http.StatusBadRequest)
+		return
+	}
 	for index, user := range users {
 		if user.ID == id {
 			updatedUser.ID = user.ID
